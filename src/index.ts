@@ -2,6 +2,8 @@ import express, { Application, urlencoded } from "express"
 import morgan from "morgan";
 import { RegisterRoutes } from "./routes/routes";
 import swaggerUi from "swagger-ui-express";
+import helmet from "helmet";
+import cors from "cors"
 
 const PORT = process.env.PORT ?? 8000
 
@@ -16,6 +18,8 @@ app.use(
 app.use(express.json()); // use json
 app.use(morgan("tiny")); // TODO: what's this doing? a: this is for logging, but need to find out more
 app.use(express.static("public")); // provide static dir
+app.use(helmet())
+app.use(cors())
 
 console.log(process.env)
 
