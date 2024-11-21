@@ -1,9 +1,9 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity()
+@Entity("dealers")
 export class Dealer {
   @PrimaryGeneratedColumn('uuid')
-  id!: number;
+  id?: number;
 
   @Column()
   name!: string;

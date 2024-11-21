@@ -1,6 +1,6 @@
-import express, { Application } from "express"
+import express, { Application, urlencoded } from "express"
 import morgan from "morgan";
-import Router from "./routes";
+import { RegisterRoutes } from "./routes/routes";
 import swaggerUi from "swagger-ui-express";
 
 const PORT = process.env.PORT ?? 8000
@@ -8,8 +8,13 @@ const PORT = process.env.PORT ?? 8000
 const app: Application = express()
 
 // middlewares
+app.use(
+  urlencoded({
+    extended: true
+  })
+)
 app.use(express.json()); // use json
-app.use(morgan("tiny")); // TODO: what's this doing?
+app.use(morgan("tiny")); // TODO: what's this doing? a: this is for logging, but need to find out more
 app.use(express.static("public")); // provide static dir
 
 console.log(process.env)
@@ -23,10 +28,10 @@ app.use(
       url: "/swagger.json",
     },
   })
-);
+)
 
-app.use(Router);
+RegisterRoutes(app);
 
 app.listen(PORT, () => {
   console.log("Server is running on port", PORT);
-});
+})

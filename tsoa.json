@@ -1,8 +1,22 @@
 {
   "entryFile": "src/index.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": ["src/controllers/**/*.ts"],
   "spec": {
     "outputDirectory": "public",
-    "specVersion": 3
+    "specVersion": 3,
+    "securityDefinitions": {
+      "auth0": {
+          "type": "apiKey",
+          "description": "Auth0 JWT",
+          "name": "Authorization",
+          "scheme": "bearer",
+          "in": "header"
+      }
+    }
+  },
+  "routes": {
+    "authenticationModule": "src/security/index.ts",
+    "routesDir": "src/routes"
   }
 }

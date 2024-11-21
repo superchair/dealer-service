@@ -3,7 +3,8 @@
 .vscode/
 
 # project files
+.env
 node_modules/
 public/
 dist/
-.env
+src/routes/routes.ts
