@@ -18,12 +18,16 @@ export type LoggerConfiguration = {
   logLevel?: LogLevel
 }
 
-export function loggerFactory({
-  applicationName = 'application',
-  filePath = './logs',
-  logLevel = LogLevel.HTTP
-}: LoggerConfiguration = {}): Logger {
-  const loggerTransports: Array<transport> = [new transports.Console()]
+export function loggerFactory(
+  {
+    applicationName = 'application',
+    filePath = './logs',
+    logLevel = LogLevel.DEBUG
+  }: LoggerConfiguration = {}
+): Logger { 
+  const loggerTransports: Array<transport> = [new transports.Console({
+    level: logLevel,
+  })]
   if (filePath) {
     const loggerFilePath: string = path.join(filePath, `${applicationName}-%DATE%.log`)
     loggerTransports.push(
@@ -39,8 +43,9 @@ export function loggerFactory({
   }
 
   const loggerFormat = format.printf(
-    ({ level, message, timestamp, stack }) => {
-      const text = `${timestamp} ${applicationName} ${level.toUpperCase()} - ${message}`;
+    ({ level, message, timestamp, stack, metadata }) => {
+      const applicationNameAndModule = (metadata as { module?: string }).module ? `${applicationName}.${(metadata as { module?: string }).module}` : applicationName;
+      const text = `${timestamp} ${applicationNameAndModule} ${level.toUpperCase()} - ${message}`;
       return stack ? text + '\n' + String(stack) : text;
     }
   )
@@ -49,6 +54,7 @@ export function loggerFactory({
     transports: loggerTransports,
     format: format.combine(
       format.errors({ stack: true }),
+      format.metadata({ fillExcept: ['message', 'level', 'timestamp', 'label'] }),
       format.json(),
       format.timestamp(),
       loggerFormat

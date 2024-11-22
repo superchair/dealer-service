@@ -2,7 +2,7 @@ import { DataSource, DataSourceOptions } from "typeorm";
 import { Dealer } from "./entity";
 import { config } from "dotenv";
 import { WinstonAdaptor } from "typeorm-logger-adaptor";
-import logger from "../logger";
+import logger from "../infrastructure/logger";
 
 // init process.env for typeorm CLI
 config();

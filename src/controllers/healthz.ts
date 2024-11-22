@@ -1,5 +1,5 @@
 import { Get, Route, Tags } from "tsoa";
-import logger from "../logger";
+import logger from "../infrastructure/logger";
 
 /**
  * @example {

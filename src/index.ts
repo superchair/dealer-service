@@ -4,13 +4,24 @@ import swaggerUi from "swagger-ui-express";
 import helmet from "helmet";
 import cors from "cors"
 import { ValidateError } from "tsoa";
-import logger from "./logger";
+import logger from "./infrastructure/logger";
 import expressWinston from "express-winston";
-import { LogLevel } from "./logger/logger";
+import { LogLevel } from "./infrastructure/logger/logger";
+import bugsnag from "./infrastructure/bugsnag";
 
 const PORT = process.env.PORT ?? 8000
 
 const app: Application = express()
+
+// register bugsnag request handler
+app.use(bugsnag.getPlugin('express')!.requestHandler)
+
+logger.error('This is an error message')
+logger.warn('This is a warning message')
+logger.info('This is an info message')
+logger.http('This is an http message')
+logger.verbose('This is a verbose message')
+logger.debug('This is a debug message')
 
 // middlewares
 app.use(
@@ -44,7 +55,7 @@ app.use(expressWinston.logger({
 
 RegisterRoutes(app);
 
-// express uncaught error handling
+// express error handling for handled errors
 app.use(function errorHandler(
   err: unknown,
   req: Request,
@@ -58,15 +69,30 @@ app.use(function errorHandler(
       details: err?.fields,
     });
   }
+
+  // this is not a handle-able error - call next handler
+  next(err);
+});
+
+
+// express error handling for unhandled errors
+app.use(function errorHandler(
+  err: unknown,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  logger.error(err)
   if (err instanceof Error) {
-    logger.error(err)
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    bugsnag.notify(err)
+  } else {
+    bugsnag.notify(new Error(`Unknown unhandled error: ${err}`))
   }
 
-  next();
-});
+  return res.status(500).json({
+    message: "Internal Server Error",
+  });
+})
 
 // express 404 handler
 app.use(function notFoundHandler(_req, res: Response) {
