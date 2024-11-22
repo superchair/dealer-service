@@ -1,6 +1,8 @@
 import { DataSource, DataSourceOptions } from "typeorm";
 import { Dealer } from "./entity";
 import { config } from "dotenv";
+import { WinstonAdaptor } from "typeorm-logger-adaptor";
+import logger from "../logger";
 
 // init process.env for typeorm CLI
 config();
@@ -16,7 +18,7 @@ const dataSourceOptions: DataSourceOptions = {
   schema: process.env.DB_SCHEMA!,
   database: process.env.DB_NAME!,
   synchronize: false,
-  logging: true,
+  logger: new WinstonAdaptor(logger, 'all', true),
   entities: [
     Dealer
   ],

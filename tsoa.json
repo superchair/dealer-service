@@ -13,7 +13,13 @@
           "scheme": "bearer",
           "in": "header"
       }
-    }
+    },
+    "tags": [
+      {
+        "name": "Service Utils",
+        "description": "Utility endpoints for the service"
+      }
+    ]
   },
   "routes": {
     "authenticationModule": "src/security/index.ts",

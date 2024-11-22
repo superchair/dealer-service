@@ -8,3 +8,4 @@ node_modules/
 public/
 dist/
 src/routes/routes.ts
+logs/
