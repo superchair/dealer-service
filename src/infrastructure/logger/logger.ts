@@ -34,7 +34,7 @@ export function loggerFactory(
       new DailyRotateFile({
         level: logLevel,
         filename: loggerFilePath,
-        datePattern: 'YYYY-MM-DD-HH',
+        datePattern: 'YYYY-MM-DD',
         maxSize: '20m',
         maxFiles: '8d',
         auditFile: path.join(filePath, '.daily-rotate-audit.json')
@@ -43,10 +43,11 @@ export function loggerFactory(
   }
 
   const loggerFormat = format.printf(
-    ({ level, message, timestamp, stack, metadata }) => {
+    ({ level, message, timestamp, metadata }) => {
       const applicationNameAndModule = (metadata as { module?: string }).module ? `${applicationName}.${(metadata as { module?: string }).module}` : applicationName;
       const text = `${timestamp} ${applicationNameAndModule} ${level.toUpperCase()} - ${message}`;
-      return stack ? text + '\n' + String(stack) : text;
+      const { stack } = metadata as { stack?: string };
+      return stack ? text + '\n' + stack : text;
     }
   )
 

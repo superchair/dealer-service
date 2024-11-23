@@ -1,30 +1,34 @@
-import Bugsnag, { Client, Logger } from "@bugsnag/js";
+import Bugsnag, { BrowserConfig, Client, Logger } from "@bugsnag/js";
 import bugsnagPluginExpress from "@bugsnag/plugin-express";
-import defaultLogger from "../logger";
+import winston from "winston";
 
 export type BugsnagConfig = {
   apiKey: string;
   appVersion: string
+  loggingClient?: winston.Logger
 }
 
-const logger = defaultLogger.child({ module: 'bugsnag' })
+function bugsnagFactory({ apiKey, appVersion, loggingClient }: BugsnagConfig): Client {
+  let logger: Logger | undefined = undefined
+  if (loggingClient) {
+    const childLogger: winston.Logger = loggingClient.child({ module: 'bugsnag' })
+    logger = {
+      debug: (message: string) => childLogger.debug(`BugSnag - ${message}`),
+      info: (message: string) => childLogger.info(`BugSnag - ${message}`),
+      warn: (message: string) => childLogger.warn(`BugSnag - ${message}`),
+      error: (message: string) => childLogger.error(`BugSnag - ${message}`),
+    }
+  }
 
-const loggerConfig: Logger = {
-  debug: (message: string) => logger.debug(`BugSnag - ${message}`),
-  info: (message: string) => logger.info(`BugSnag - ${message}`),
-  warn: (message: string) => logger.warn(`BugSnag - ${message}`),
-  error: (message: string) => logger.error(`BugSnag - ${message}`),
-}
-
-function bugsnagFactory({ apiKey, appVersion }: BugsnagConfig): Client {
-  return Bugsnag.start({
+  const config: BrowserConfig = {
     apiKey,
     plugins: [
       bugsnagPluginExpress
     ],
     appVersion,
-    logger: logger
-  })
+    logger
+  }
+  return Bugsnag.start(config)
 }
 
 export default bugsnagFactory;
